@@ -232,7 +232,13 @@ RED4EXT_C_EXPORT void RED4EXT_CALL Query(RED4ext::v1::PluginInfo* aInfo)
     aInfo->name = L"Immersive First Person";
     aInfo->author = L"Immersive First Person contributors";
     aInfo->version = RED4EXT_V1_SEMVER(0, 2, 0);
+#ifdef __APPLE__
+    // macOS: the 2.31 runtime is the Windows file version (3.0.80.51928); the macOS loader rejects it, so the plugin
+    // declares itself runtime independent like the other macOS plugins (it has no hooks and no address rows).
+    aInfo->runtime = RED4EXT_RUNTIME_INDEPENDENT;
+#else
     aInfo->runtime = RED4EXT_V1_RUNTIME_VERSION_2_31;
+#endif
     aInfo->sdk = RED4EXT_V1_SDK_VERSION_CURRENT;
 }
 
