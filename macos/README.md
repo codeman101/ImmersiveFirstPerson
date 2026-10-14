@@ -4,11 +4,13 @@ A port of Immersive First Person v2.1.2 (AGPL-3.0) to the native macOS build of 
 
 Everything macOS-specific is in this folder and in `#ifdef __APPLE__` blocks in `native/src/Main.cpp`. The Windows build is meant to be unchanged: `WINDOWS_CHECK.md` is the `unifdef -U__APPLE__` comparison against tag v2.1.2. What is not done yet: `NOT_YET.md`.
 
-This folder sits next to `native/`, not under it, so `native/CMakeLists.txt` stays the tag file. The session launcher looks for `macos/build/ImmersiveFirstPerson.dylib`.
+This folder sits next to `native/`, not under it, so `native/CMakeLists.txt` stays the tag file.
 
 ## Status
 
-The dylib builds for arm64. It has not been run inside the game.
+The dylib builds for arm64 and loads in the game. An automated in-game run passed: the native is registered, IFP reports the
+height graph as ready, the camera uses the native path, and CET logged no Lua errors. Camera feel, height and leaning have not
+been checked by a person yet.
 
 One native is registered on `gamePuppet`: `ImmersiveFirstPersonGetHeightGraphStatus`. It reads the root animated component's animgraph and reports whether the height-blend contract is loaded. The Lua side calls it and treats a missing native as unavailable.
 
@@ -16,7 +18,7 @@ One native is registered on `gamePuppet`: `ImmersiveFirstPersonGetHeightGraphSta
 
 - Cyberpunk 2077 2.3.1, the native macOS build (Steam), on Apple Silicon.
 - A RED4ext loader for macOS that calls `ifp_registerNatives` after every plugin has loaded (at script initialisation). The game does not run RTTI register callbacks. The port was developed against the same loader setup as the macOS ports of TweakXL, ArchiveXL, Codeware and Mod Settings.
-- Cyber Engine Tweaks, for the Lua modules. The height archive and `LookAt.reds` are the existing session-mod files. This dylib does not replace them.
+- Cyber Engine Tweaks, for the Lua modules. The height archive and `LookAt.reds` come from the regular IFP release. This dylib does not replace them.
 
 No hooks. No address rows of its own. The address table is the macOS RED4ext SDK plus Codeware's `macos/MacSdkRows.inc`. An unknown hash goes to a trap that logs once and returns a stub.
 
@@ -37,7 +39,7 @@ After the link, `fix-install-names.sh` rewrites a Homebrew install name to `@loa
 
 `red4ext/plugins/ImmersiveFirstPerson/ImmersiveFirstPerson.dylib`
 
-The modded-session launcher moves that file in while the Immersive First Person session mod is on, and moves it back when the session ends. If the dylib has not been built, the session stays Lua-only and the launcher says so.
+Without the dylib, IFP runs Lua-only and treats the height graph as unavailable.
 
 ## How the macOS build differs
 

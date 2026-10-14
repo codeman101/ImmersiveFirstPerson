@@ -1,6 +1,7 @@
 # Immersive First Person on macOS: not done yet
 
-The dylib builds. It has not been booted in the game. No in-game check of the height graph has been run. That check (the native returns Compatible) is later work.
+The dylib builds and runs in the game. An automated in-game run passed: the native is registered and IFP reports the height graph
+as ready. Not checked yet: camera feel, height and leaning by a person.
 
 ## Class size
 
@@ -20,4 +21,6 @@ The dylib builds. It has not been booted in the game. No in-game check of the he
 
 ## Registration
 
-The plugin does not install hooks and does not add address rows of its own. `Query` still reports runtime 2.31. On this SDK that macro is file version 3.0.80.51928. Whether the Mac loader accepts that file version is an in-game check. `Supports()` returns the loader's latest API version (this SDK has one, version 0).
+The plugin does not install hooks and does not add address rows of its own. On Apple, `Query` reports the runtime as independent:
+the macOS loader rejects the Windows 2.31 file version (3.0.80.51928) that the Windows build declares. `Supports()` returns the
+loader's latest API version (this SDK has one, version 0).
