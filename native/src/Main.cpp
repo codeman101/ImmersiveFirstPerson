@@ -9,6 +9,9 @@
 
 #include <cstdint>
 #include <string>
+#ifdef __APPLE__
+#include "MacSdkCompat.hpp"
+#endif
 
 namespace
 {
@@ -178,6 +181,28 @@ RED4EXT_C_EXPORT void RED4EXT_CALL PostRegisterTypes()
 
     LogInfo("Runtime height contract control registered.");
 }
+#ifdef __APPLE__
+// The Mac game does not run RTTI register callbacks. The loader calls this at InitScripts.
+RED4EXT_C_EXPORT void RED4EXT_CALL ifp_registerNatives()
+{
+    static bool s_once = false;
+    if (!RED4ext::CRTTISystem::Get())
+    {
+        if (s_logger)
+        {
+            s_logger->Error(s_pluginHandle, "ifp_registerNatives: no RTTI system yet; nothing registered.");
+        }
+        return;
+    }
+    if (s_once)
+    {
+        LogInfo("ifp_registerNatives: already ran.");
+        return;
+    }
+    s_once = true;
+    PostRegisterTypes();
+}
+#endif
 
 RED4EXT_C_EXPORT bool RED4EXT_CALL Main(RED4ext::v1::PluginHandle aHandle,
                                        RED4ext::v1::EMainReason aReason,
@@ -188,9 +213,13 @@ RED4EXT_C_EXPORT bool RED4EXT_CALL Main(RED4ext::v1::PluginHandle aHandle,
     case RED4ext::v1::EMainReason::Load:
         s_pluginHandle = aHandle;
         s_logger = aSdk->logger;
+#ifdef __APPLE__
+        LogInfo("Immersive First Person native plugin loaded. Natives register from ifp_registerNatives.");
+#else
         RED4ext::CRTTISystem::Get()->AddRegisterCallback(RegisterTypes);
         RED4ext::CRTTISystem::Get()->AddPostRegisterCallback(PostRegisterTypes);
         LogInfo("Immersive First Person native plugin loaded.");
+#endif
         break;
     case RED4ext::v1::EMainReason::Unload:
         break;
